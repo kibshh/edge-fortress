@@ -1,0 +1,15 @@
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# editor/os noice
+.DS_Store
+Thumbs.db
+
+# docker
+*.log
+
+# node
+node_modules/
+dist/
