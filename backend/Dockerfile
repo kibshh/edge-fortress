@@ -15,5 +15,5 @@ COPY app ./app
 # 5) Document the port the app listens on (informational)
 EXPOSE 8000
 
-# 6) Start the server when the container runs
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 6) Start the server when the container runs, Use shell form so $APP_PORT expands at runtime
+CMD sh -c "uvicorn app.main:app --host 0.0.0.0 --port ${APP_PORT:-8000}"
