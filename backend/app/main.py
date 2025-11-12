@@ -6,6 +6,7 @@ import os
 APP_NAME = os.getenv("APP_NAME", "Edge Fortress API")
 APP_ENV = os.getenv("APP_ENV", "local")
 HEALTH_MESSAGE = os.getenv("HEALTH_MESSAGE", "ok")
+APP_PORT = int(os.getenv("APP_PORT", "8000"))
 
 class Reading(BaseModel):
     device_id: str
@@ -20,7 +21,8 @@ def health():
     return {
         "status": HEALTH_MESSAGE,
         "env": APP_ENV,
-        "name": APP_NAME
+        "name": APP_NAME,
+        "port": APP_PORT
         }
 
 @app.post("/ingest")
