@@ -1,0 +1,5 @@
+- name: Install Docker engine
+  hosts: localhost
+  become: true
+  roles:
+    - docker_host

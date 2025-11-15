@@ -16,3 +16,6 @@ dist/
 
 # env
 backend/.env
+
+# vscode
+.vscode/
