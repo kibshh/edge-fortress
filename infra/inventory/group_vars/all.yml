@@ -1,0 +1,15 @@
+# Global configuration used by all hosts
+
+backend_image_name: "edge-fortress/api"
+backend_image_tag: "dev"
+
+backend_container_name: "edge-fortress-api"
+backend_host_port: 8000
+backend_container_port: 8000
+
+backend_env:
+  APP_NAME: "Edge Fortress API"
+  APP_ENV: "dev"
+  HEALTH_MESSAGE: "ok-from-env"
+  APP_PORT: "8000"
+  

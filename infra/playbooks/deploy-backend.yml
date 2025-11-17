@@ -1,0 +1,19 @@
+- name: Deploy Edge Fortress backend container
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Ensure backend image is present 
+      community.docker.docker_image:
+        name: "{{ backend_image_name }}"
+        tag: "{{ backend_image_tag }}"
+        source: local
+
+    - name: Ensure backend container is running
+      community.docker.docker_container:
+        name: "{{ backend_container_name }}"
+        image: "{{ backend_image_name }}:{{ backend_image_tag }}"
+        published_ports:
+          - "{{ backend_host_port }}:{{ backend_container_port }}"
+        restart_policy: unless-stopped
+        state: started
+        env: "{{ backend_env }}"
