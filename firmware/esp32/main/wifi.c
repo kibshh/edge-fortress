@@ -3,5 +3,5 @@
 
 void Wifi_WifiInit(void)
 {
-    printf("[wifi] init placeholder\n");
+    printf("(wifi) init placeholder\n");
 }
