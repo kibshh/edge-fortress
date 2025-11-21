@@ -1,0 +1,6 @@
+- name: Ping backend hosts
+  hosts: backend
+  gather_facts: false
+  tasks:
+    - name: Ping with ansible
+      ansible.builtin.ping:
