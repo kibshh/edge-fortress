@@ -14,6 +14,10 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write  # needed to push to GHCR
+
     defaults:
       run:
         working-directory: backend
@@ -35,6 +39,20 @@ jobs:
       - name: Run pytest
         run: pytest
 
-      - name: Build backend Docker image
-        run: docker build -t edge-fortress/api:ci-${{ github.sha }} .
+      - name: Log in to GitHub container registry (GHCR)
+        run: echo ${{ github.token }} | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build and push backend Docker image
+        run: |
+          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/edge-fortress/api"
+          # build image tagged with commit SHA
+          docker build -t "IMAGE_NAME:${{ github.sha }}" .
+          # optionally also tag "latest" for main branch
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            docker tag "IMAGE_NAME:${{ github.sha }}" "IMAGE_NAME:latest" 
+            docker push "IMAGE_NAME:latest"
+          fi
+          # always push the SHA-tagged image
+          docker push "IMAGE_NAME:${{ github.sha }}"
+
       
