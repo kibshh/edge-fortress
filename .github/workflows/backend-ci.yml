@@ -46,13 +46,13 @@ jobs:
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/edge-fortress/api"
           # build image tagged with commit SHA
-          docker build -t "IMAGE_NAME:${{ github.sha }}" .
+          docker build -t "$IMAGE_NAME:${{ github.sha }}" .
           # optionally also tag "latest" for main branch
           if [ "${{ github.ref_name }}" = "main" ]; then
-            docker tag "IMAGE_NAME:${{ github.sha }}" "IMAGE_NAME:latest" 
-            docker push "IMAGE_NAME:latest"
+            docker tag "$IMAGE_NAME:${{ github.sha }}" "$IMAGE_NAME:latest" 
+            docker push "$IMAGE_NAME:latest"
           fi
           # always push the SHA-tagged image
-          docker push "IMAGE_NAME:${{ github.sha }}"
+          docker push "$IMAGE_NAME:${{ github.sha }}"
 
       
