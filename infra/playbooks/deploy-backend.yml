@@ -1,5 +1,5 @@
 - name: Deploy Edge Fortress backend container
-  hosts: localhost
+  hosts: backend
   become: true
   tasks:
     - name: Ensure backend image is present (pulled from registry)
