@@ -1,7 +1,7 @@
 # Global configuration used by all hosts
 
-backend_image_name: "edge-fortress/api"
-backend_image_tag: "dev"
+backend_image_name: "ghcr.io/kibshh/edge-fortress-api"
+backend_image_tag: "latest"
 
 backend_container_name: "edge-fortress-api"
 backend_host_port: 8000

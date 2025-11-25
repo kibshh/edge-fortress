@@ -2,18 +2,24 @@
   hosts: localhost
   become: true
   tasks:
-    - name: Ensure backend image is present 
+    - name: Ensure backend image is present (pulled from registry)
       community.docker.docker_image:
         name: "{{ backend_image_name }}"
         tag: "{{ backend_image_tag }}"
-        source: local
+        source: pull
 
-    - name: Ensure backend container is running
-      community.docker.docker_container:
-        name: "{{ backend_container_name }}"
-        image: "{{ backend_image_name }}:{{ backend_image_tag }}"
-        published_ports:
-          - "{{ backend_host_port }}:{{ backend_container_port }}"
-        restart_policy: unless-stopped
-        state: started
-        env: "{{ backend_env }}"
+    - name: Remove existing backend container if present
+      ansible.builtin.shell: docker rm -f "{{ backend_container_name }}" 2>/dev/null || true
+      changed_when: false
+
+    - name: Run backend container with environment variables
+      ansible.builtin.shell: |
+        docker run -d \
+          --name "{{ backend_container_name }}" \
+          -p "{{ backend_host_port }}:{{ backend_container_port }}" \
+          -e APP_NAME="{{ backend_env.APP_NAME }}" \
+          -e APP_ENV="{{ backend_env.APP_ENV }}" \
+          -e HEALTH_MESSAGE="{{ backend_env.HEALTH_MESSAGE }}" \
+          -e APP_PORT="{{ backend_env.APP_PORT }}" \
+          "{{ backend_image_name }}:{{ backend_image_tag }}"
+      changed_when: true
