@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import os
 from datetime import datetime, timezone
-from typing import List, Dict, Deque
+from typing import List, Dict, Deque, Optional
 from collections import deque
 
 # read configuration from environment with safe defaults
@@ -99,3 +99,44 @@ def latest(device_id: str, limit: int = 10):
         "count": len(latest_slice),
         "readings": latest_slice
     }
+
+@app.get("/readings")
+def get_readings(
+    device_id: str,
+    metric: Optional[str] = None,
+    since_seconds: Optional[int] = None,
+    limit: int = 100
+):
+    """
+    Return multiple readings for a given device (and optional metric).
+
+    - device_id: required
+    - metric: optional, e.g. "temperature" or "humidity"
+    - since_seconds: optional, only include readings newer than now - since_seconds
+    - limit: max number of readings to return (from the end / most recent first logically)
+    """
+    now = datetime.now(timezone.utc)
+    def matches(r: Reading) -> bool:
+      # Filter by device
+      if r.device_id != device_id:
+          return False
+      # Optional filter by metric
+      if metric is not None and r.metric != metric:
+          return False
+      # Optional filter by age
+      if since_seconds is not None:
+          age = (now - r.timestamp).total_seconds()
+          if age > since_seconds:
+              return False
+      return True   
+
+    # Filter readings and keep the most recent ones (from the end of the list)
+    filtered = [r for r in latest_readings if matches(r)]
+    if limit is not None and limit > 0:
+        filtered = filtered[-limit:]
+
+    return {
+        "count": len(filtered),
+        "readings": filtered
+    }     
+
