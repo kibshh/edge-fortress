@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Deque, Optional
 from collections import deque
 
@@ -104,39 +104,30 @@ def latest(device_id: str, limit: int = 10):
 def get_readings(
     device_id: str,
     metric: Optional[str] = None,
-    since_seconds: Optional[int] = None,
-    limit: int = 100
+    limit: int = 100,
 ):
     """
-    Return multiple readings for a given device (and optional metric).
+    Simple time-series query:
 
     - device_id: required
-    - metric: optional, e.g. "temperature" or "humidity"
-    - since_seconds: optional, only include readings newer than now - since_seconds
-    - limit: max number of readings to return (from the end / most recent first logically)
+    - metric: optional (temperature/humidity)
+    - limit: return the last N readings (per device, optionally per metric)
     """
-    now = datetime.now(timezone.utc)
-    def matches(r: Reading) -> bool:
-      # Filter by device
-      if r.device_id != device_id:
-          return False
-      # Optional filter by metric
-      if metric is not None and r.metric != metric:
-          return False
-      # Optional filter by age
-      if since_seconds is not None:
-          age = (now - r.timestamp).total_seconds()
-          if age > since_seconds:
-              return False
-      return True   
+    filtered = []
+    readings_for_device = list(latest_readings.get(device_id, []))
 
-    # Filter readings and keep the most recent ones (from the end of the list)
-    filtered = [r for r in latest_readings if matches(r)]
+    for r in readings_for_device:
+        m = r.get("metric")
+        if metric is not None and m != metric:
+            continue
+        filtered.append(r)
+
+    # Keep only the last `limit` readings (most recent last)
     if limit is not None and limit > 0:
         filtered = filtered[-limit:]
 
     return {
+        "device_id": device_id,
         "count": len(filtered),
-        "readings": filtered
-    }     
-
+        "readings": filtered,
+    } 
